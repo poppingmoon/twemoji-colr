@@ -346,7 +346,7 @@ function addOrMerge(paths, p, color) {
     if (i >= 0) {
         paths[i].paths.push(p);
     } else {
-        paths.push({color: color, paths: [p]});
+        paths.push({ color: color, paths: [p] });
     }
 }
 
@@ -406,7 +406,7 @@ function processFile(fileName, data) {
         var urlColor = {};
 
         var addToPaths = function (defaultFill, defaultStroke, defaultOpacity,
-                                   defaultStrokeWidth, xform, elems) {
+            defaultStrokeWidth, xform, elems) {
             elems.forEach(function (e) {
 
                 if (e['#name'] === 'metadata') {
@@ -580,7 +580,7 @@ function processFile(fileName, data) {
             }
 
             // add to the glyph's list of color layers
-            layers.push({color: path.color, glyphName: glyphName});
+            layers.push({ color: path.color, glyphName: glyphName });
 
             // if we haven't seen this color before, add it to the palette
             if (colorToId[path.color] === undefined) {
@@ -592,9 +592,9 @@ function processFile(fileName, data) {
 
         if (unicodes.length === 1) {
             // simple character (single codepoint)
-            chars.push({unicode: unicodes[0], components: layers});
+            chars.push({ unicode: unicodes[0], components: layers });
         } else {
-            ligatures.push({unicodes: unicodes, components: layers});
+            ligatures.push({ unicodes: unicodes, components: layers });
             // create the placeholder glyph for the ligature (to be mapped to a set of color layers)
             fs.writeFileSync(targetDir + "/glyphs/u" + unicodes.join("_") + ".svg",
                 '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" enable-background="new 0 0 64 64"></svg>');
@@ -623,20 +623,20 @@ function generateTTX() {
 
     // COLR table records the color layers that make up each colored glyph
     var COLR = ttFont.ele("COLR");
-    COLR.ele("version", {value: 0});
+    COLR.ele("version", { value: 0 });
     chars.forEach(function (ch) {
-        var colorGlyph = COLR.ele("ColorGlyph", {name: "u" + ch.unicode});
+        var colorGlyph = COLR.ele("ColorGlyph", { name: "u" + ch.unicode });
         ch.components.forEach(function (cmp) {
-            colorGlyph.ele("layer", {colorID: colorToId[cmp.color], name: "u" + cmp.glyphName});
+            colorGlyph.ele("layer", { colorID: colorToId[cmp.color], name: "u" + cmp.glyphName });
         });
         layerInfo[ch.unicode] = ch.components.map(function (cmp) {
             return "u" + cmp.glyphName;
         });
     });
     ligatures.forEach(function (lig) {
-        var colorGlyph = COLR.ele("ColorGlyph", {name: "u" + lig.unicodes.join("_")});
+        var colorGlyph = COLR.ele("ColorGlyph", { name: "u" + lig.unicodes.join("_") });
         lig.components.forEach(function (cmp) {
-            colorGlyph.ele("layer", {colorID: colorToId[cmp.color], name: "u" + cmp.glyphName});
+            colorGlyph.ele("layer", { colorID: colorToId[cmp.color], name: "u" + cmp.glyphName });
         });
         layerInfo[lig.unicodes.join("_")] = lig.components.map(function (cmp) {
             return "u" + cmp.glyphName;
@@ -646,41 +646,41 @@ function generateTTX() {
 
     // CPAL table maps color index values to RGB colors
     var CPAL = ttFont.ele("CPAL");
-    CPAL.ele("version", {value: 0});
-    CPAL.ele("numPaletteEntries", {value: colors.length});
-    var palette = CPAL.ele("palette", {index: 0});
+    CPAL.ele("version", { value: 0 });
+    CPAL.ele("numPaletteEntries", { value: colors.length });
+    var palette = CPAL.ele("palette", { index: 0 });
     var index = 0;
     colors.forEach(function (c) {
         if (c.substr(0, 3) === "url") {
             console.log("unexpected color: " + c);
             c = "#000000ff";
         }
-        palette.ele("color", {index: index, value: c});
+        palette.ele("color", { index: index, value: c });
         index = index + 1;
     });
 
     // GSUB table implements the ligature rules for Regional Indicator pairs and emoji-ZWJ sequences
     var GSUB = ttFont.ele("GSUB");
-    GSUB.ele("Version", {value: "0x00010000"});
+    GSUB.ele("Version", { value: "0x00010000" });
 
-    var scriptRecord = GSUB.ele("ScriptList").ele("ScriptRecord", {index: 0});
-    scriptRecord.ele("ScriptTag", {value: "DFLT"});
+    var scriptRecord = GSUB.ele("ScriptList").ele("ScriptRecord", { index: 0 });
+    scriptRecord.ele("ScriptTag", { value: "DFLT" });
 
     var defaultLangSys = scriptRecord.ele("Script").ele("DefaultLangSys");
-    defaultLangSys.ele("ReqFeatureIndex", {value: 65535});
-    defaultLangSys.ele("FeatureIndex", {index: 0, value: 0});
+    defaultLangSys.ele("ReqFeatureIndex", { value: 65535 });
+    defaultLangSys.ele("FeatureIndex", { index: 0, value: 0 });
 
     // The ligature rules are assigned to the "ccmp" feature (*not* "liga"),
     // as they should not be disabled in contexts such as letter-spacing or
     // inter-character justification, where "normal" ligatures are turned off.
-    var featureRecord = GSUB.ele("FeatureList").ele("FeatureRecord", {index: 0});
-    featureRecord.ele("FeatureTag", {value: "ccmp"});
-    featureRecord.ele("Feature").ele("LookupListIndex", {index: 0, value: 0});
+    var featureRecord = GSUB.ele("FeatureList").ele("FeatureRecord", { index: 0 });
+    featureRecord.ele("FeatureTag", { value: "ccmp" });
+    featureRecord.ele("Feature").ele("LookupListIndex", { index: 0, value: 0 });
 
-    var lookup = GSUB.ele("LookupList").ele("Lookup", {index: 0});
-    lookup.ele("LookupType", {value: 4});
-    lookup.ele("LookupFlag", {value: 0});
-    var ligatureSubst = lookup.ele("LigatureSubst", {index: 0, Format: 1});
+    var lookup = GSUB.ele("LookupList").ele("Lookup", { index: 0 });
+    lookup.ele("LookupType", { value: 4 });
+    lookup.ele("LookupFlag", { value: 0 });
+    var ligatureSubst = lookup.ele("LigatureSubst", { index: 0, Format: 1 });
     var ligatureSets = {};
     var ligatureSetKeys = [];
     var addLigToSet = function (lig) {
@@ -691,20 +691,20 @@ function generateTTX() {
             ligatureSetKeys.push(startGlyph);
             ligatureSets[startGlyph] = [];
         }
-        ligatureSets[startGlyph].push({components: components, glyph: glyphName});
+        ligatureSets[startGlyph].push({ components: components, glyph: glyphName });
     }
     ligatures.forEach(addLigToSet);
     extraLigatures.forEach(addLigToSet);
     ligatureSetKeys.sort();
     ligatureSetKeys.forEach(function (glyph) {
-        var ligatureSet = ligatureSubst.ele("LigatureSet", {glyph: glyph});
+        var ligatureSet = ligatureSubst.ele("LigatureSet", { glyph: glyph });
         var set = ligatureSets[glyph];
         // sort ligatures with more components first
         set.sort(function (a, b) {
             return b.components.length - a.components.length;
         });
         set.forEach(function (lig) {
-            ligatureSet.ele("Ligature", {components: lig.components, glyph: lig.glyph});
+            ligatureSet.ele("Ligature", { components: lig.components, glyph: lig.glyph });
         });
     });
 
