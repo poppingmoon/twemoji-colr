@@ -1,10 +1,9 @@
 var fs = require('fs'),
     rmdir = require('rmdir'),
-    unzip = require('unzip'),
     xmlbuilder = require('xmlbuilder'),
     xml2js = require('xml2js');
 
-var sourceZip = process.argv[2];
+var sourceDir = process.argv[2];
 var overridesDir = process.argv[3];
 var extrasDir = process.argv[4];
 var targetDir = process.argv[5];
@@ -12,7 +11,7 @@ var fontName = process.argv[6];
 
 if (fontName === undefined) {
     console.error("### Missing font name.");
-    console.error("### Usage: node " + process.argv[1] + " source-SVGs.zip overrides-dir extras-dir build-dir font-name");
+    console.error("### Usage: node " + process.argv[1] + " source-dir overrides-dir extras-dir build-dir font-name");
     return;
 }
 
@@ -380,12 +379,14 @@ function processFile(fileName, data) {
     // Twitter doesn't include the VS16 in the keycap filenames
     if (/^[23][0-9a]-20e3$/.test(baseName)) {
         var orig = baseName;
-        baseName = baseName.replace('-20e3', '-fe0f-20e3');
-        console.log(`found mis-named keycap ${orig}, renamed to ${baseName}`);
+        let renamed = baseName.replace('-20e3', '-fe0f-20e3');
+        console.log(`found mis-named keycap ${orig}, renamed to ${renamed}`);
+        processFile(renamed, data);
     } else if (baseName === '1f441-200d-1f5e8') {
         // ...or in the "eye in speech bubble"'s
-        baseName = '1f441-fe0f-200d-1f5e8-fe0f';
-        console.log(`found mis-named 1f441-200d-1f5e8, renamed to ${baseName}`);
+        let renamed = '1f441-fe0f-200d-1f5e8-fe0f';
+        console.log(`found mis-named 1f441-200d-1f5e8, renamed to ${renamed}`);
+        processFile(renamed, data);
     }
 
     var parser = new xml2js.Parser({
@@ -737,28 +738,20 @@ rmdir(targetDir, function () {
     var overrides = fs.readdirSync(overridesDir);
 
     // Finally, we're ready to process the images from the main source archive:
-    fs.createReadStream(sourceZip).pipe(unzip.Parse()).on('entry', function (e) {
-        var data = "";
-        var fileName = e.path.replace(/^.*\//, ""); // strip any directory names
-        if (e.type === 'File' && e.path.substr(-4, 4) === '.svg') {
+    fs.readdir(sourceDir, (_, files) => {
+        for (let fileName of files) {
             // Check for an override; if present, read that instead
             var o = overrides.indexOf(fileName);
             if (o >= 0) {
                 console.log("overriding " + fileName + " with local copy");
-                data = fs.readFileSync(overridesDir + "/" + fileName);
+                let data = fs.readFileSync(overridesDir + "/" + fileName);
                 processFile(fileName, data);
                 overrides.splice(o, 1);
-                e.autodrain();
             } else {
-                e.on("data", function (c) {
-                    data += c.toString();
-                });
-                e.on("end", function () {
-                    processFile(fileName, data);
-                });
+                let data = fs.readFileSync(sourceDir + "/" + fileName);
+                processFile(fileName, data);
             }
-        } else {
-            e.autodrain();
         }
-    }).on('close', generateTTX);
+        generateTTX();
+    });
 });

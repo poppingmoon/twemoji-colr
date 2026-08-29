@@ -18,8 +18,8 @@ limitations under the License.
 
 ## License for the Visual Design
 
-The Emoji art in the twe-svg.zip archive comes from [Twemoji](https://twitter.github.io/twemoji),
-and is used and redistributed under the CC-BY-4.0 [license terms](https://github.com/twitter/twemoji#license)
+The Emoji art in the twemoji directory comes from [Twemoji](https://jdecked.github.io/twemoji),
+and is used and redistributed under the CC-BY-4.0 [license terms](https://github.com/jdecked/twemoji#license)
 offered by the Twemoji project.
 
 ### Creative Commons Attribution 4.0 International (CC BY 4.0)

@@ -10,7 +10,7 @@ BUILD_DIR  = build
 
 FINAL_TARGET = $(BUILD_DIR)/$(FONT_NAME).ttf
 
-SVGS         = twe-svg.zip
+SVGS         = twemoji/assets/svg
 OVERRIDE_DIR = overrides
 EXTRA_DIR    = extras
 
