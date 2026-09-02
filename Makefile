@@ -3,6 +3,7 @@ NODE       ?= node
 PERL       ?= perl
 PYTHON     ?= python3
 TTX        ?= ttx
+INKSCAPE   ?= inkscape
 
 FONT_NAME  = Twemoji\ Mozilla
 
@@ -42,3 +43,12 @@ $(RAW_FONT) : $(CODEPOINTS) $(GRUNTFILE)
 
 $(CODEPOINTS) $(OT_SOURCE) : $(LAYERIZE) $(SVGS) $(OVERRIDE_DIR) $(EXTRA_DIR)
 	$(NODE) $(LAYERIZE) $(SVGS) $(OVERRIDE_DIR) $(EXTRA_DIR) $(BUILD_DIR) $(FONT_NAME)
+	for f in $(BUILD_DIR)/colorGlyphs/*.svg; do \
+		glyphName=$$(basename "$$f" | tr '-' '_'); \
+		echo "file-open:$$f;" \
+			"select-all;" \
+			"path-union;" \
+			"export-filename:$(BUILD_DIR)/monochromeGlyphs/$$glyphName;" \
+			"export-do"; \
+	done | $(INKSCAPE) --shell
+	$(NPM) run svgo -- -f $(BUILD_DIR)/monochromeGlyphs -o $(BUILD_DIR)/glyphs

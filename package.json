@@ -24,6 +24,7 @@
     "grunt-webfonts": "^4.0.2",
     "load-grunt-tasks": "^5.1.0",
     "rmdir": "^1.2.0",
+    "svgo": "^4.1.0",
     "xml2js": "^0.4.23",
     "xmlbuilder": "^15.1.1"
   },
@@ -39,7 +40,8 @@
     "resemblejs": "^4.1.0"
   },
   "scripts": {
-    "grunt": "grunt"
+    "grunt": "grunt",
+    "svgo": "svgo"
   },
   "resolutions": {
     "graceful-fs": "^4.2.9"
