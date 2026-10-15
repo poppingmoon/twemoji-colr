@@ -48,7 +48,7 @@ jobs:
 
     steps:
       - name: Download artifacts
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
 
       - name: Rename TTF
         run: mv 'Twemoji Mozilla.ttf' TwemojiMozilla.ttf
